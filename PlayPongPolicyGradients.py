@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+#coding:utf-8
 #import dependencies
 import numpy as np   #for matrix math
 import cPickle as pickle  #to save/load model
@@ -10,7 +12,7 @@ batch_size = 10
 learning_rate = 1e-4 
 gamma = 0.99 #discount factor
 decay_rate = 0.99 #for RMS Prop Optimiser for Gradient Descent
-resume = False #to resume from previous checkpoint or not
+resume = True #to resume from previous checkpoint or not
 
 
 #initialise : init model
@@ -20,10 +22,10 @@ if resume:
 else:
     model = {}
     #xavier initialisation of weights
-    model['W1'] = np.random.randn(H,D)*np.sqrt(2.0/D)
+    model['W1'] = np.random.randn(H,D)*np.sqrt(2.0/D)	# 正态分布
     model['W2'] = np.random.randn(H)*np.sqrt(2.0/H)
-    grad_buffer = {k: np.zeros_like(v) for k,v in model.iteritems()} #to store our gradients which can be summed up over a batch
-    rmsprop_cache = {k: np.zeros_like(v) for k,v in model.iteritems()} #to store the value of rms prop formula
+grad_buffer = {k: np.zeros_like(v) for k,v in model.iteritems()} #to store our gradients which can be summed up over a batch
+rmsprop_cache = {k: np.zeros_like(v) for k,v in model.iteritems()} #to store the value of rms prop formula
 
 
 #activation function
@@ -105,7 +107,7 @@ while True:
     #sample an action from the returned probability
     aprob, h = policy_forward(x)
     #stochastic part
-    if np.random.uniform() < aprob:
+    if np.random.uniform() < aprob:	# 均匀分布
         action = 2
     else:
         action = 3
@@ -172,7 +174,9 @@ while True:
         reward_sum = 0
         prev_x = None
         observation = env.reset() #resetting the environment since episode has ended
+    # end if done:  #if the episode is over
         
     
     if reward != 0: #if reward is either +1 or -1 i.e. an episode has ended
-        print("Episode {} ended with reward {}".format(episode_number,reward))
+        #print("Episode {} ended with reward {}".format(episode_number,reward))
+        pass

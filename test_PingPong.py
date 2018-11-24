@@ -7,9 +7,6 @@ import time
 import glob
 from RL_brain import PolicyGradient
 
-DISPLAY_REWARD_THRESHOLD = 21  # renders environment if total episode reward is greater then this threshold
-RENDER = False  # rendering wastes time
-
 #preprocessing function
 def prepro(I): #where I is the single frame of the game as the input
     """ prepro 210x160x3 uint8 frame into 6400 (80x80) 1D float vector """
@@ -50,19 +47,21 @@ if __name__ == '__main__':
         observation = env.reset()
         observation_mod = prepro(observation)
 
+        episode_reward = 0
         while True:
-            if RENDER: env.render(); time.sleep(0.05)
-            action = RL.random_choose_action(observation_mod)
+            env.render()
+            time.sleep(0.02)
+            action = RL.max_choose_action(observation_mod)
             next_observation, reward, done, info = env.step(action)
-            RL.store_transition(observation_mod, action, reward)
+            #RL.store_transition(observation_mod, action, reward)
+            if reward != 0:
+                episode_reward += reward
 
             if done:  #if the episode is over
-                episode_reward = sum(RL.ep_rs)
-
-                if episode_reward > DISPLAY_REWARD_THRESHOLD: RENDER = True     # rendering
                 print("episode:", i_episode, "  reward:", int(episode_reward))
+                episode_reward = 0
                 
-                vt = RL.learn()
+                #vt = RL.learn()
                 break
 
             observation_mod = prepro(next_observation)

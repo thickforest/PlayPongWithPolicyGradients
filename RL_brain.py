@@ -77,7 +77,7 @@ class PolicyGradient:
         # fc1
         layer = tf.layers.dense(
             inputs=self.tf_obs,
-            units=10,
+            units=200,
             activation=tf.nn.tanh,  # tanh activation
             kernel_initializer=tf.random_normal_initializer(mean=0, stddev=0.3),
             bias_initializer=tf.constant_initializer(0.1),
@@ -105,9 +105,14 @@ class PolicyGradient:
         with tf.name_scope('train'):
             self.train_op = tf.train.AdamOptimizer(self.lr).minimize(loss, name="train_op")
 
-    def choose_action(self, observation):
+    def random_choose_action(self, observation):
         prob_weights = self.sess.run(self.all_act_prob, feed_dict={self.tf_obs: observation[np.newaxis, :]})
         action = np.random.choice(range(prob_weights.shape[1]), p=prob_weights.ravel())  # select action w.r.t the actions prob
+        return action
+
+    def max_choose_action(self, observation):
+        prob_weights = self.sess.run(self.all_act_prob, feed_dict={self.tf_obs: observation[np.newaxis, :]})
+        action = np.argmax(prob_weights.ravel())
         return action
 
     def store_transition(self, s, a, r):
@@ -128,6 +133,7 @@ class PolicyGradient:
         self.epoch += 1
         if self.save_interval != 0:
             if self.epoch%self.save_interval == 0:
+                os.system('rm -rf RL_model/*')
                 self.saver.save(self.sess, "RL_model/model", global_step=self.epoch)
 
         self.ep_obs, self.ep_as, self.ep_rs = [], [], []    # empty episode data

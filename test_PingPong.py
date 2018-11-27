@@ -7,6 +7,8 @@ import time
 import glob
 from RL_brain import PolicyGradient
 
+TIME_INTERVAL=0.02
+
 #preprocessing function
 def prepro(I): #where I is the single frame of the game as the input
     """ prepro 210x160x3 uint8 frame into 6400 (80x80) 1D float vector """
@@ -22,6 +24,8 @@ def prepro(I): #where I is the single frame of the game as the input
 if __name__ == '__main__':
     #implementation details
     env = gym.make('Pong-v0')
+    env.seed(1)
+    env = env.unwrapped
     state_size = 6400
     action_size = env.action_space.n
 
@@ -37,7 +41,7 @@ if __name__ == '__main__':
         learning_rate=1e-4,
         reward_decay=0.99,
         # output_graph=True,
-        save_interval=10,
+        # save_interval=10,
         load_model=model_path,
     )
 
@@ -50,7 +54,7 @@ if __name__ == '__main__':
         episode_reward = 0
         while True:
             env.render()
-            time.sleep(0.02)
+            time.sleep(TIME_INTERVAL)
             action = RL.max_choose_action(observation_mod)
             next_observation, reward, done, info = env.step(action)
             #RL.store_transition(observation_mod, action, reward)

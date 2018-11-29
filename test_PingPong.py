@@ -29,11 +29,6 @@ if __name__ == '__main__':
     state_size = 6400
     action_size = env.action_space.n
 
-    model_path = ''
-    files = glob.glob('RL_model/model-*.meta')
-    if files:
-        model_path = files[0]
-
     RL = PolicyGradient(
         n_actions=env.action_space.n,
         #n_features=env.observation_space.shape[0],
@@ -42,7 +37,8 @@ if __name__ == '__main__':
         reward_decay=0.99,
         # output_graph=True,
         # save_interval=10,
-        load_model=model_path,
+        resume=True,
+        work_dir="PingPongModel",
     )
 
     i_episode = 0
@@ -62,7 +58,7 @@ if __name__ == '__main__':
                 episode_reward += reward
 
             if done:  #if the episode is over
-                print("episode:", i_episode, "  reward:", int(episode_reward))
+                print("episode:", i_episode, "  score:", int(episode_reward))
                 episode_reward = 0
                 
                 #vt = RL.learn()

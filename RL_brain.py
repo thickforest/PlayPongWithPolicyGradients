@@ -14,6 +14,7 @@ gym: 0.8.0
 import numpy as np
 import tensorflow as tf
 import os
+import glob
 
 # reproducible
 np.random.seed(1)
@@ -29,7 +30,8 @@ class PolicyGradient:
             reward_decay=0.95,
             output_graph=False,
             save_interval=0,
-            load_model="",
+            resume=True,
+            work_dir="XXX_model"
     ):
         self.n_actions = n_actions
         self.n_features = n_features
@@ -37,19 +39,24 @@ class PolicyGradient:
         self.gamma = reward_decay
         self.save_interval = save_interval
         self.epoch = 0
+        self.work_dir = work_dir
 
         self.ep_obs, self.ep_as, self.ep_rs = [], [], []
 
 
         self.sess = tf.Session()
 
-        if load_model:
-            self._load_model(load_model)
-        else:
+        model_path = ''
+        if resume:
+            files = glob.glob(self.work_dir + '/model-*.meta')
+            if files:
+                model_path = files[0]
+                self._load_model(model_path)
+        if model_path == '':
             self._build_net()
             self.sess.run(tf.global_variables_initializer())
 
-        self.saver = tf.train.Saver(max_to_keep=4)
+        self.saver = tf.train.Saver(max_to_keep=1)
 
         if output_graph:
             # $ tensorboard --logdir=logs
@@ -133,8 +140,8 @@ class PolicyGradient:
         self.epoch += 1
         if self.save_interval != 0:
             if self.epoch%self.save_interval == 0:
-                os.system('rm -rf RL_model/*')
-                self.saver.save(self.sess, "RL_model/model", global_step=self.epoch)
+                os.system('rm -rf %s/*' % self.work_dir)
+                self.saver.save(self.sess, self.work_dir + "/model", global_step=self.epoch)
 
         self.ep_obs, self.ep_as, self.ep_rs = [], [], []    # empty episode data
         return discounted_ep_rs_norm
@@ -144,9 +151,10 @@ class PolicyGradient:
         discounted_ep_rs = np.zeros_like(self.ep_rs)
         running_add = 0
         for t in reversed(range(0, len(self.ep_rs))):
-            # add two lines for "PingPong"
-            if self.ep_rs[t] != 0:
-                running_add = 0
+            if self.work_dir == "PingPongModel":
+            # add two lines only for "PingPong"
+                if self.ep_rs[t] != 0:
+                    running_add = 0
             running_add = running_add * self.gamma + self.ep_rs[t]
             discounted_ep_rs[t] = running_add
 

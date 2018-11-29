@@ -4,7 +4,6 @@ import gym
 import random
 import numpy as np
 import time
-import glob
 from RL_brain import PolicyGradient
 
 DISPLAY_REWARD_THRESHOLD = 21  # renders environment if total episode reward is greater then this threshold
@@ -28,11 +27,6 @@ if __name__ == '__main__':
     state_size = 6400
     action_size = env.action_space.n
 
-    model_path = ''
-    files = glob.glob('RL_model/model-*.meta')
-    if files:
-        model_path = files[0]
-
     RL = PolicyGradient(
         n_actions=env.action_space.n,
         #n_features=env.observation_space.shape[0],
@@ -41,7 +35,8 @@ if __name__ == '__main__':
         reward_decay=0.99,
         # output_graph=True,
         save_interval=10,
-        load_model=model_path,
+        resume=True,
+        work_dir="PingPongModel",
     )
 
     i_episode = 0
@@ -60,7 +55,7 @@ if __name__ == '__main__':
                 episode_reward = sum(RL.ep_rs)
 
                 if episode_reward > DISPLAY_REWARD_THRESHOLD: RENDER = True     # rendering
-                print("episode:", i_episode, "  reward:", int(episode_reward))
+                print("episode:", i_episode, "  score:", int(episode_reward))
                 
                 vt = RL.learn()
                 break

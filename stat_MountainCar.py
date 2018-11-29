@@ -12,7 +12,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 scores = []
-for line in open('PingPong.log').readlines()[:-1]:
+for line in open('MountainCar.log').readlines()[2:-1]:
     score = line.split()[-1][:-1]
     scores.append(float(score))
 
@@ -61,7 +61,7 @@ for show_index in range(show_num):
         end -= num_per_pile
     #print start, end
     piles = map(int, scores[start:end])
-    plt.hist(piles, bins = range(-21, 22))
+    plt.hist(piles)
     #plt.hist(piles, bins = range(0, 22))
-plt.savefig('PingPong_hist.png')
+plt.savefig('MountainCar_hist.png')
 #plt.show()

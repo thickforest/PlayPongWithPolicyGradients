@@ -6,6 +6,7 @@ import numpy as np
 import time
 import glob
 from RL_brain import PolicyGradient
+from gym.wrappers.monitoring.video_recorder import VideoRecorder
 
 TIME_INTERVAL=0.02
 
@@ -45,12 +46,14 @@ if __name__ == '__main__':
     while True:
         i_episode += 1
         observation = env.reset()
+        video = VideoRecorder(env)
         observation_mod = prepro(observation)
 
         episode_reward = 0
         while True:
-            env.render()
-            time.sleep(TIME_INTERVAL)
+            #env.render()
+            #time.sleep(TIME_INTERVAL)
+            video.capture_frame()
             action = RL.max_choose_action(observation_mod)
             next_observation, reward, done, info = env.step(action)
             #RL.store_transition(observation_mod, action, reward)
@@ -62,6 +65,9 @@ if __name__ == '__main__':
                 episode_reward = 0
                 
                 #vt = RL.learn()
+                video.close()
+                print video.path
+                raw_input('continue?')
                 break
 
             observation_mod = prepro(next_observation)
